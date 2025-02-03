@@ -166,7 +166,6 @@
 "Global budget export",,,
 "Global budget full name",,,
 "Global budget id",,,
-"Global budget.company.currency.number of decimals",,,
 "Global budgets",,,
 "If enabled, an automatic budget computation will be done at request/finalize for orders",,,
 "If you click OK you will be in excess, do you want to continue ?",,,

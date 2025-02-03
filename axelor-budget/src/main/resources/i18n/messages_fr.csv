@@ -166,7 +166,6 @@
 "Global budget export","Export du budget global",,
 "Global budget full name","Budget global (Nom complet)",,
 "Global budget id","Budget global (ID)",,
-"Global budget.company.currency.number of decimals",,,
 "Global budgets",,,
 "If enabled, an automatic budget computation will be done at request/finalize for orders","Si activé, un calcul automatique d'imputation budgétaire va être effectué à la demande/finalisation des commandes",,
 "If you click OK you will be in excess, do you want to continue ?","Si vous cliquez sur OK, vous serez en dépassement, voulez vous continuer ?",,
