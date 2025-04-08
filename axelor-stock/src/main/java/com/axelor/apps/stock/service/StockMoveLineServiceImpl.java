@@ -1,7 +1,7 @@
 /*
  * Axelor Business Solutions
  *
- * Copyright (C) 2005-2024 Axelor (<http://axelor.com>).
+ * Copyright (C) 2005-2025 Axelor (<http://axelor.com>).
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -687,7 +687,7 @@ public class StockMoveLineServiceImpl implements StockMoveLineService {
     if (toStatus == StockMoveRepository.STATUS_REALIZED) {
       BigDecimal avgPrice =
           this.computeNewAveragePriceLocationLine(stockLocationLine, stockMoveLine);
-      stockLocationLine.setAvgPrice(avgPrice);
+      setAvgPriceAndComputeForProduct(stockLocationLine, avgPrice);
 
       stockLocationLineService.updateHistory(
           stockLocationLine,
@@ -740,7 +740,8 @@ public class StockMoveLineServiceImpl implements StockMoveLineService {
     if (toStatus == StockMoveRepository.STATUS_CANCELED) {
       resetAvgPrice(stockLocationLine, origin);
     } else {
-      stockLocationLine.setAvgPrice(
+      setAvgPriceAndComputeForProduct(
+          stockLocationLine,
           Optional.ofNullable(stockLocationLine.getAvgPrice()).orElse(BigDecimal.ZERO));
     }
 
@@ -752,7 +753,8 @@ public class StockMoveLineServiceImpl implements StockMoveLineService {
         getStockLocationLineHistoryTypeSelect(toStatus));
   }
 
-  protected void resetAvgPrice(StockLocationLine stockLocationLine, String origin) {
+  protected void resetAvgPrice(StockLocationLine stockLocationLine, String origin)
+      throws AxelorException {
 
     // Sort by date.
     List<StockLocationLineHistory> sortedHistoryLines =
@@ -780,14 +782,16 @@ public class StockMoveLineServiceImpl implements StockMoveLineService {
       // Case where firstHistoryLine is simply not from same origin.
       // Or we could not find historyLine from different origin.
       if (i == 0 || i >= sortedHistoryLines.size()) {
-        stockLocationLine.setAvgPrice(
+        setAvgPriceAndComputeForProduct(
+            stockLocationLine,
             Optional.ofNullable(stockLocationLine.getAvgPrice()).orElse(BigDecimal.ZERO));
       } else {
-        stockLocationLine.setAvgPrice(lastHistoryLine.getWap());
+        setAvgPriceAndComputeForProduct(stockLocationLine, lastHistoryLine.getWap());
       }
 
     } else {
-      stockLocationLine.setAvgPrice(
+      setAvgPriceAndComputeForProduct(
+          stockLocationLine,
           Optional.ofNullable(stockLocationLine.getAvgPrice()).orElse(BigDecimal.ZERO));
     }
   }
@@ -843,6 +847,12 @@ public class StockMoveLineServiceImpl implements StockMoveLineService {
       newAvgPrice = oldAvgPrice;
     }
     return newAvgPrice;
+  }
+
+  protected void setAvgPriceAndComputeForProduct(
+      StockLocationLine stockLocationLine, BigDecimal avgPrice) throws AxelorException {
+    stockLocationLine.setAvgPrice(avgPrice);
+    weightedAveragePriceService.computeAvgPriceForProduct(stockLocationLine.getProduct());
   }
 
   @Override
@@ -1857,7 +1867,7 @@ public class StockMoveLineServiceImpl implements StockMoveLineService {
             I18n.get(StockExceptionMessage.SPLIT_MOVE_LINE_WRONG_STATUS));
       }
 
-      if (!stockMove.getTypeSelect().equals(StockMoveRepository.TYPE_INCOMING)) {
+      if (stockMove.getTypeSelect().equals(StockMoveRepository.TYPE_INTERNAL)) {
         throw new AxelorException(
             TraceBackRepository.CATEGORY_INCONSISTENCY,
             I18n.get(StockExceptionMessage.SPLIT_MOVE_LINE_WRONG_TYPE));
@@ -1879,7 +1889,6 @@ public class StockMoveLineServiceImpl implements StockMoveLineService {
     unfulfilledStockMoveLine.setQty(fulfilledStockMoveLine.getQty().subtract(realQty));
     fulfilledStockMoveLine.setQty(realQty);
     unfulfilledStockMoveLine.setTotalNetMass(BigDecimal.ZERO);
-    unfulfilledStockMoveLine.setNetMass(BigDecimal.ZERO);
     unfulfilledStockMoveLine.setRealQty(BigDecimal.ZERO);
     unfulfilledStockMoveLine.setStockMove(fulfilledStockMoveLine.getStockMove());
     unfulfilledStockMoveLine.setConformitySelect(0);
