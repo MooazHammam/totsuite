@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <object-views xmlns="http://axelor.com/xml/ns/object-views"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.2.xsd">
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_7.4.xsd">
 
   <grid name="user-grid" title="Users list" model="com.axelor.auth.db.User" id="user-grid-base">
     <field name="name"/>
@@ -152,7 +152,7 @@
         readonlyIf="partner == null" readonly="true"/>
       <button name="createEmployeeBtn" onClick="save,action-user-group-employee"
         title="Create employee" if-module="axelor-human-resource"
-        showIf="employee == null &amp;&amp; id != null &amp;&amp; id>0"
+        showIf="(partner != null &amp;&amp; partner.employee == null) &amp;&amp; (employee == null &amp;&amp; id != null &amp;&amp; id>0)"
         if="__config__.app.isApp('employee')"/>
     </panel>
     <panel name="testingPanel" title="Testing" sidebar="true" hidden="true"
